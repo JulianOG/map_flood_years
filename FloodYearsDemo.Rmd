@@ -1,0 +1,52 @@
+---
+title: "Untitled"
+output: html_document
+date: "2025-01-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r load packages, include=FALSE}
+require(terra)
+require(leaflet)
+require(purrr)
+require(htmltools)
+```
+
+
+
+```{r read in the tiles, include=FALSE}
+xs = list.files("FloodYears_tiles/",full.names = TRUE)
+rl = lapply(xs,function(x) rast(x))
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r plot the rasters, echo=FALSE}
+pal <- colorNumeric(rev(c("magenta","darkblue", "cyan", "lightblue")), values(rl[[1]]),
+                    na.color = "transparent")
+# Define the leaflet map
+map <- leaflet() %>%
+  addTiles()
+
+# Add all raster images with a loop
+map <- reduce(seq_along(rl), function(m, i) {
+  m %>% addRasterImage(rl[[i]], colors = pal, opacity = 0.8)
+}, .init = map)
+
+# Add legend
+map <- map %>%
+  addLegend(pal = pal, values = values(rl[[1]]), title = HTML("Flood years<br>1981-2020"))
+
+# Display map
+map
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
