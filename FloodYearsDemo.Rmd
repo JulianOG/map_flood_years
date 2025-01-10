@@ -1,15 +1,31 @@
 ---
-title: "Untitled"
+title: "Demo mapping storm-tide flood years for the Torres Strait"
 output: html_document
-date: "2025-01-07"
+date: Sys.Date()
 ---
+
+## Sea-Level Rise and Coastal Inundation
+
+Sea-level rise (SLR) is increasing the frequency of tidal "nuisance inundation" or "sunny day flooding" of coastal paths and streets ([Hanslow et al., 2023](https://link.springer.com/article/10.1007/s10113-023-02138-8)). Events that were once considered acute nuisances are now evolving into chronic, recurring issues.  
+
+In addition to tidal flooding, the rare combination of a major storm surge and high tides, known as a "storm-tide," can exacerbate coastal flooding, leading to the possibility of "major inundation" or "catastrophic flooding" of coastal buildings and infrastructure. Rare storm-tide events are traditionally defined as 100-year events with a 1% annual exceedance probability (AEP). However, SLR is amplifying both the frequency and severity of these events. What were once acute, rare "major" events are projected to become more frequent, chronic "major" problems in the coming decades.  
+
+Defining the threshold for chronic coastal inundation (e.g., 30 days per year or 3 events over 30 years) depends on the ability of affected systems—whether natural or community-built—to adapt to these impacts.  
+
+The map below examines storm-tide flooding over two 30-year periods: the past 30 years (1995–2024) and the next 30 years (2025–2054). It highlights the potential increase in significant storm-tide events due to sea-level rise, helping to identify locations where chronic issues may emerge and require adaptation planning.
+
+Zoom in and out to focus on specific areas or one of the 20 Torres Strait islands. Use the layers control to tick on/off timeframes or switch basemaps (OpenStreetMap or Satellite). The legend explains the color-coded number of flood years for the 30 year periods, ranging from low (light blue) to high (magenta). Click on green circle markers to view detailed historic flood-year plots for each island.  
+
+**DISCLAIMER: This work has very limited validation/calibration and shouldn't be used for planning, policy, or navigation. Water levels and digital elevations vertical datumns were aligned by tuning water levels to the number of historic flooding years (1981-2020) for only a few known hotspot locations. As flood history isn't widely accessible, further work is required to obtain local knowledge of historical flooding for each of 20 islands with elevation data.**
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.width=10, fig.height=7)
 ```
 
 
 ```{r load packages, include=FALSE}
+#https://julianog.github.io/map_flood_years/FloodYearsDemo.html
 require(terra)
 require(leaflet)
 require(purrr)
@@ -22,31 +38,84 @@ require(htmltools)
 xs = list.files("FloodYears_tiles/",full.names = TRUE)
 rl = lapply(xs,function(x) rast(x))
 
+group_name  = sapply(strsplit(xs,"_"),function(x) x[4])
+
+
+dat <- read.csv("TS_virtual_gauges_extra.csv")
+
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+```{r plot the tiles, include=FALSE}
 
-```{r plot the rasters, echo=FALSE}
-pal <- colorNumeric(rev(c("magenta","darkblue", "cyan", "lightblue")), values(rl[[1]]),
-                    na.color = "transparent")
-# Define the leaflet map
-map <- leaflet() %>%
-  addTiles()
+
+# Define a color palette for the raster
+pal <- colorBin(rev(c("magenta", "darkblue", "cyan", "lightblue")), 
+                    values(rl[[1]]), na.color = "transparent",bins = 6)
+
+#previewColors(pal)
+
+# Create a leaflet map with both OSM and satellite basemaps
+map <- leaflet(dat) %>%
+  addTiles(group = "OpenStreetMap") %>%
+  addProviderTiles(providers$Esri.WorldImagery, group = "Satellite")
 
 # Add all raster images with a loop
 map <- reduce(seq_along(rl), function(m, i) {
-  m %>% addRasterImage(rl[[i]], colors = pal, opacity = 0.8)
+  m %>% addRasterImage(rl[[i]], colors = pal, opacity = 1, group = group_name[i])
 }, .init = map)
+
+map <- map %>%
+  addCircleMarkers(
+    ~lon, ~lat,  # Use your lat/lon columns
+    popup = ~paste0(
+      #"<b>", Name, "</b><br>",
+      "<img src='https://raw.githubusercontent.com/JulianOG/map_flood_years/refs/heads/main/plots/island_floodyears_1981-2020_",voi_id,".png' ",
+      "style='max-width:400px; height:auto; display:block;'>"
+      ),
+    label = ~Name,
+    #labelOptions = labelOptions(noHide = TRUE, direction = "auto"),  # Always show labels
+    radius = 3,
+    color = "green",
+    fillOpacity = 0.1,
+    group = "Virtual Gauges"
+  )
 
 # Add legend
 map <- map %>%
-  addLegend(pal = pal, values = values(rl[[1]]), title = HTML("Flood years<br>1981-2020"))
+  addLegend(pal = pal, values = values(rl[[1]]), 
+            title = HTML("Number of<br>Flood years"),opacity =1)
 
-# Display map
+# Add layers control to switch between basemaps
+map <- map %>%
+  addLayersControl(
+    baseGroups = c("OpenStreetMap", "Satellite"),
+    overlayGroups =  c("1995-2024","2025-2054"),
+    options = layersControlOptions(collapsed = FALSE, mutuallyExclusiveGroups = c("1995-2024","2025-2054"))
+  )
+
+# Display the map
+
+
+map <- map %>%
+  hideGroup("2025-2054")  # Ensure this group is hidden initially
+
+```
+
+
+
+```{r, echo=FALSE}
 map
 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
+```{r}
+
+```
+
+```{r}
+
+```
