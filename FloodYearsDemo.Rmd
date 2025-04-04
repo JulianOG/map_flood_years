@@ -1,5 +1,5 @@
 ---
-title: "Demo mapping storm-tide flood years for the Torres Strait"
+title: "Demo mapping storm-tide flood years for Northern Australia"
 output: html_document
 date:  "`r Sys.Date()`"
 ---
@@ -14,7 +14,7 @@ Defining the threshold for chronic coastal inundation (e.g., 30 days per year or
 
 The map below examines storm-tide flooding over two 30-year periods: the past 30 years (1995–2024) and the next 30 years (2025–2054). It highlights the potential increase in significant storm-tide events due to sea-level rise, helping to identify locations where chronic issues may emerge and require adaptation planning.
 
-Zoom in and out to focus on specific areas or one of the 20 Torres Strait islands. Use the layers control to tick on/off timeframes or switch basemaps (OpenStreetMap or Satellite). The legend explains the color-coded number of flood years for the 30 year periods, ranging from low (light blue) to high (magenta). Click on green circle markers to view detailed historic flood-year plots for each island.  
+Zoom in and out to focus on specific areas or one of the 20 Torres Strait islands and Yarrabah. Use the layers control to tick on/off timeframes or switch basemaps (OpenStreetMap or Satellite). The legend explains the color-coded number of flood years for the 30 year periods, ranging from low (light blue) to high (magenta). Click on green circle markers to view detailed historic flood-year plots for each island and Yarrabah.  
 
 **DISCLAIMER: This work has very limited validation/calibration and shouldn't be used for planning, policy, or navigation. Water levels and digital elevations vertical datumns were aligned by tuning water levels to the number of historic flooding years (1981-2020) for only a few known hotspot locations. As flood history isn't widely accessible, further work is required to obtain local knowledge of historical flooding for each of 20 islands with elevation data.**
 
@@ -36,7 +36,20 @@ require(htmltools)
 
 ```{r read in the tiles, include=FALSE}
 xs = list.files("FloodYears_tiles/",full.names = TRUE)
+
+voi_id  = sapply(strsplit(xs,"_"),function(x) substr(x[5],1,4))
+
+selectpts = c(which(voi_id > 4000), which(voi_id == 3064))
+
+xs = xs[selectpts]
+
+voi_id = voi_id[selectpts]
+
+voi_id  = sapply(strsplit(xs,"_"),function(x) substr(x[5],1,4))
+
+
 rl = lapply(xs,function(x) rast(x))
+
 
 group_name  = sapply(strsplit(xs,"_"),function(x) x[4])
 
