@@ -1,22 +1,34 @@
 ---
-title: "Demo mapping storm-tide flood years for Northern Australia"
+title: "Mapping storm tide flood years for Northern Australia"
 output: html_document
 date:  "`r Sys.Date()`"
 ---
 
-## Sea-Level Rise and Coastal Inundation
+## Sea-level rise and coastal inundation
+
+### Sea-level rise
 
 Sea-level rise (SLR) is increasing the frequency of tidal "nuisance inundation" or "sunny day flooding" of coastal paths and streets ([Hanslow et al., 2023](https://link.springer.com/article/10.1007/s10113-023-02138-8)). Events that were once considered acute nuisances are now evolving into chronic, recurring issues.  
 
-In addition to tidal flooding, the rare combination of a major storm surge and high tides, known as a "storm-tide," can exacerbate coastal flooding, leading to the possibility of "major inundation" or "catastrophic flooding" of coastal buildings and infrastructure. Rare storm-tide events are traditionally defined as 100-year events with a 1% annual exceedance probability (AEP). However, SLR is amplifying both the frequency and severity of these events. What were once acute, rare "major" events are projected to become more frequent, chronic "major" problems in the coming decades.  
+In addition to tidal flooding, the combination of a major storm surge and high tides, known as a [storm tide](https://www.undrr.org/understanding-disaster-risk/terminology/hips/mh0704), can exacerbate coastal flooding, leading to the possibility of [major](https://www.weather.gov/ffc/flood_awareness_flooding) inundation or catastrophic flooding of coastal buildings and infrastructure. 
 
-Defining the threshold for chronic coastal inundation (e.g., 30 days per year or 3 events over 30 years) depends on the ability of affected systems—whether natural or community-built—to adapt to these impacts.  
+Rare storm tide events are traditionally defined as 100-year events with a 1% annual exceedance probability (AEP). This means there is a 1% chance (or a 1 in 100 chance) that an event of a specific magnitude, or a larger one, will happen in any single year. It is possible (but very unlikely) that a 1% AEP event could occur in consecutive years or multiple times within the same year. However, SLR is amplifying the frequency and likelihood of these events. What were once acute, rare major events are projected to become more frequent, chronic major problems in the coming decades.  
 
-The map below examines storm-tide flooding over two 30-year periods: the past 30 years (1995–2024) and the next 30 years (2025–2054). It highlights the potential increase in significant storm-tide events due to sea-level rise, helping to identify locations where chronic issues may emerge and require adaptation planning.
+### Coastal inundation
 
-Zoom in and out to focus on specific areas or one of the 20 Torres Strait islands and Yarrabah. Use the layers control to tick on/off timeframes or switch basemaps (OpenStreetMap or Satellite). The legend explains the color-coded number of flood years for the 30 year periods, ranging from frequent (light blue) to less frequent (magenta). Click on green circle markers to view detailed historic flood-year plots for each island and Yarrabah.  
+Defining the threshold for chronic coastal inundation (e.g., 30 days per year or 3 events over 30 years) depends on the ability of affected systems, whether natural or community-built, to adapt to these impacts.  
 
-**DISCLAIMER: This work has very limited validation/calibration and shouldn't be used for planning, policy, or navigation. Water levels and digital elevations vertical datumns were aligned by tuning water levels to the number of historic flooding years (1981-2020) for only a few known hotspot locations. As flood history isn't widely accessible, further work is required to obtain local knowledge of historical flooding for each of 20 islands with elevation data.**
+The map below examines storm tide flooding over two 30-year periods: the past 30 years before 2025 (1995–2024) and the next 30 years from 2025 (2025–2054). By comparing the two periods and seeing how the colours on the maps change, it highlights the potential increase in significant storm tide events due to sea-level rise, helping to identify locations where chronic coastal inundation issues may emerge and require adaptation planning.
+
+### How to interpret information on the map
+
+Locations featured:  
+-	Torres Strait islands, Queensland  
+-	Yarrabah Aboriginal shire council, Queensland  
+
+Zoom in and out to focus on specific areas or one of the 20 Torres Strait islands and Yarrabah. Use the layers control to select timeframes or switch basemaps view (OpenStreetMap or Satellite). The legend explains the color-coded number of flood years for the 30 year periods, ranging from frequent (light blue) to less frequent (magenta). A flood year is any year in which storm tide water levels rise above the land surface, making flooding likely. For example, land under the magenta colour experiance between 0 and 5 flood years over the 30 year period. Click on green circle markers to view detailed historic flood-year plots for each location.  
+
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -123,7 +135,7 @@ map
 ```
 
 
-
+**DISCLAIMER: This work has very limited validation/calibration and shouldn't be used for planning, policy, or navigation. Water levels and digital elevations vertical datumns were aligned by tuning water levels to the number of historic flooding years (1981-2020) for only a few known hotspot locations. As flood history isn't widely accessible, further work is required to obtain local knowledge of historical flooding for each of 20 islands with elevation data.**
 
 ```{r}
 
