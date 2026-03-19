@@ -38,7 +38,7 @@ require(purrr)
 require(htmltools)
 ```
 
-```{r}
+```{r, include=FALSE}
 voi = vect("Ramsar/") #inundation tiles
 voi = voi[voi$RAMSAR_NAM == "Western Port",]
 ```
