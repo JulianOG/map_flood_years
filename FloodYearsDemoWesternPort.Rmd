@@ -48,9 +48,8 @@ xs = list.files("FloodYears_tiles/",full.names = TRUE)
 
 voi_id  = sapply(strsplit(xs,"_"),function(x) substr(x[5],1,4))
 
-xs = xs[voi_id < 4000]
-
-voi_id = voi_id[voi_id < 4000]
+xs = xs[voi_id < 4000 & !is.na(voi_id) & voi_id != 3064]
+voi_id = voi_id[voi_id < 4000 & !is.na(voi_id) & voi_id != 3064]
 
 voi_id  = sapply(strsplit(xs,"_"),function(x) substr(x[5],1,4))
 
@@ -81,7 +80,7 @@ map <- leaflet(dat) %>%
   addPolygons(data = voi, 
               color = "blue", 
               fillColor = "lightblue", 
-              fillOpacity = 0.5, 
+              fillOpacity = 0.1, 
               weight = 2,
               group = "Western Port Ramsar")
 
@@ -113,7 +112,7 @@ map <- map %>%
 # Add layers control to switch between basemaps
 map <- map %>%
   addLayersControl(
-    baseGroups = c("OpenStreetMap", "Satellite"),
+    baseGroups = c("Satellite","OpenStreetMap"),
     overlayGroups =  c("1995-2024","2025-2054","Western Port Ramsar"),
     options = layersControlOptions(collapsed = FALSE, mutuallyExclusiveGroups = c("1995-2024","2025-2054"))
   )
@@ -122,7 +121,7 @@ map <- map %>%
 
 
 map <- map %>%
-  hideGroup(c("2025-2054","Western Port Ramsar"))  # Ensure this group is hidden initially
+  hideGroup(c("2025-2054"))  # Ensure this group is hidden initially
 
 ```
 

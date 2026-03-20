@@ -1,5 +1,5 @@
 ---
-title: "Mapping storm tide flood years for Northern Australia"
+title: "Mapping storm tide flood years for Western Port Ramsar"
 output: html_document
 date:  "`r Sys.Date()`"
 ---
@@ -22,15 +22,9 @@ The map below examines storm tide flooding over two 30-year periods: the past 30
 
 ### How to interpret information on the map
 
-Locations featured:  
--	Torres Strait islands, Queensland  
--	Yarrabah Aboriginal shire council, Queensland  
+Zoom in and out to focus on specific areas around Western Port. Use the layers control to select timeframes or switch basemaps view (OpenStreetMap or Satellite). The legend explains the color-coded number of flood years for the 30 year periods, ranging from frequent (light blue) to less frequent (magenta). A flood year is any year in which storm tide water levels rise above the land surface, making flooding likely. For example, land under the magenta colour experiance between 0 and 5 flood years over the 30 year period. Click on green circle markers to view detailed historic flood-year plots for each location.  
 
-Zoom in and out to focus on specific areas or one of the 20 Torres Strait islands and Yarrabah. Use the layers control to select timeframes or switch basemaps view (OpenStreetMap or Satellite). The legend explains the color-coded number of flood years for the 30 year periods, ranging from frequent (light blue) to less frequent (magenta). A flood year is any year in which storm tide water levels rise above the land surface, making flooding likely. For example, land under the magenta colour experiance between 0 and 5 flood years over the 30 year period. Click on green circle markers to view detailed historic flood-year plots for each location.  
-
-
-
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(fig.width=10, fig.height=7)
 ```
@@ -44,30 +38,29 @@ require(purrr)
 require(htmltools)
 ```
 
-
+```{r, include=FALSE}
+voi = vect("Ramsar/") #inundation tiles
+voi = voi[voi$RAMSAR_NAM == "Western Port",]
+```
 
 ```{r read in the tiles, include=FALSE}
-xs = list.files("FloodYears_tiles/",full.names = TRUE)
+xs = list.files("FloodYears_tiles/WP_ramsar/",full.names = TRUE)
 
 voi_id  = sapply(strsplit(xs,"_"),function(x) substr(x[5],1,4))
 
-selectpts = c(which(voi_id > 4000 & !is.na(voi_id)), which(voi_id == 3064))
-
-xs = xs[selectpts]
-
-voi_id = voi_id[selectpts]
+xs = xs[voi_id < 4000 & !is.na(voi_id)]
+voi_id = voi_id[voi_id < 4000 & !is.na(voi_id)]
 
 voi_id  = sapply(strsplit(xs,"_"),function(x) substr(x[5],1,4))
-
 
 rl = lapply(xs,function(x) rast(x))
 
+ll = sapply(rl,function(x) geom(centroids(vect(ext(x))))[3:4])
 
-group_name  = sapply(strsplit(xs,"_"),function(x) x[4])
+group_name  = sapply(strsplit(xs,"_"),function(x) x[5])
 
 
-dat <- read.csv("TS_virtual_gauges_extra.csv")
-
+dat <- data.frame(voi_id = voi_id, lat = ll[2,],lon = ll[1,],Name = voi_id)
 ```
 
 
@@ -83,39 +76,44 @@ pal <- colorBin((c("magenta", "darkblue", "cyan", "lightblue")),
 # Create a leaflet map with both OSM and satellite basemaps
 map <- leaflet(dat) %>%
   addTiles(group = "OpenStreetMap") %>%
-  addProviderTiles(providers$Esri.WorldImagery, group = "Satellite")
+  addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") %>%
+  addPolygons(data = voi, 
+              color = "blue", 
+              fillColor = "lightblue", 
+              fillOpacity = 0.1, 
+              weight = 2,
+              group = "Western Port Ramsar")
 
 # Add all raster images with a loop
 map <- reduce(seq_along(rl), function(m, i) {
-  m %>% addRasterImage(rl[[i]], colors = pal, opacity = .8, group = group_name[i])
+  m %>% addRasterImage(rl[[i]], colors = pal, opacity = 1, group = group_name[i])
 }, .init = map)
 
-map <- map %>%
-  addCircleMarkers(
-    ~lon, ~lat,  # Use your lat/lon columns
-    popup = ~paste0(
-      #"<b>", Name, "</b><br>",
-      "<img src='https://raw.githubusercontent.com/JulianOG/map_flood_years/refs/heads/main/plots/island_floodyears_1981-2020_",voi_id,".png' ",
-      "style='max-width:400px; height:auto; display:block;'>"
-      ),
-    label = ~Name,
-    #labelOptions = labelOptions(noHide = TRUE, direction = "auto"),  # Always show labels
-    radius = 3,
-    color = "green",
-    fillOpacity = 0.1,
-    group = "Virtual Gauges"
-  )
+#map <- map %>%
+#  addCircleMarkers(
+#    ~lon, ~lat,  # Use your lat/lon columns
+#    popup = ~paste0(
+#      #"<b>", Name, "</b><br>",
+#      "<img src='https://raw.githubusercontent.com/JulianOG/map_flood_years/refs/heads/main/plots/island_floodyears_1981-2020_",voi_id,".png' ",
+#      "style='max-width:400px; height:auto; display:block;'>"
+#      ),
+#    label = ~Name,
+##    radius = 3,
+#    color = "green",
+#    fillOpacity = 0.1,
+#    group = "Virtual Gauges"
+#  )
 
 # Add legend
 map <- map %>%
   addLegend(pal = pal, values = values(rl[[1]]), 
-            title = HTML("Number of<br>Flood years"),opacity =1)
+            title = HTML("Number of<br>storm tide<br>exceedence years"),opacity =1)
 
 # Add layers control to switch between basemaps
 map <- map %>%
   addLayersControl(
-    baseGroups = c("OpenStreetMap", "Satellite"),
-    overlayGroups =  c("1995-2024","2025-2054"),
+    baseGroups = c("Satellite","OpenStreetMap"),
+    overlayGroups =  c("1995-2024","2025-2054","Western Port Ramsar"),
     options = layersControlOptions(collapsed = FALSE, mutuallyExclusiveGroups = c("1995-2024","2025-2054"))
   )
 
@@ -123,7 +121,7 @@ map <- map %>%
 
 
 map <- map %>%
-  hideGroup("2025-2054")  # Ensure this group is hidden initially
+  hideGroup(c("2025-2054"))  # Ensure this group is hidden initially
 
 ```
 
@@ -135,7 +133,10 @@ map
 ```
 
 
-**DISCLAIMER: This work has very limited validation/calibration and shouldn't be used for planning, policy, or navigation. Water levels and digital elevations vertical datumns were aligned by tuning water levels to the number of historic flooding years (1981-2020) for only a few known hotspot locations. As flood history isn't widely accessible, further work is required to obtain local knowledge of historical flooding for each of 20 islands with elevation data.**
+**DISCLAIMER: This work has very limited validation/calibration and shouldn't be used for planning, policy, or navigation. Water levels and digital elevations vertical datumns were aligned by tuning water levels to the number of historic flooding years (1981-2020) for only a few known hotspot locations. As flood history isn't widely accessible, further work is required to obtain local knowledge of historical flooding for each of location with elevation data.**
+
+
+
 
 ```{r}
 
