@@ -84,6 +84,20 @@ map <- leaflet(dat) %>%
               weight = 2,
               group = "Western Port Ramsar")
 
+map <- map %>% 
+  addWMSTiles(
+    baseUrl = "https://ows.dea.ga.gov.au/",
+    layers = "ga_s2_coastalecosystems_cyear_3_v1",
+    options = WMSTileOptions(
+      format = "image/png",
+      transparent = TRUE,
+      version = "1.3.0"
+    ),
+    attribution = "Digital Earth Australia / Geoscience Australia",
+    group = "DEA CoastalEcosystems"
+  )
+
+
 # Add all raster images with a loop
 map <- reduce(seq_along(rl), function(m, i) {
   m %>% addRasterImage(rl[[i]], colors = pal, opacity = 1, group = group_name[i])
@@ -113,13 +127,28 @@ map <- map %>%
 map <- map %>%
   addLayersControl(
     baseGroups = c("Satellite","OpenStreetMap"),
-    overlayGroups =  c("1995-2024","2025-2054","Western Port Ramsar"),
+    overlayGroups =  c("DEA CoastalEcosystems","1995-2024","2025-2054","Western Port Ramsar"),
     options = layersControlOptions(collapsed = FALSE, mutuallyExclusiveGroups = c("1995-2024","2025-2054"))
   )
 
 # Display the map
 
+legend_url <- "https://ows.dea.ga.gov.au/legend/ga_s2_coastalecosystems_cyear_3_v1/coastalecosystems_classification/legend.png"
 
+legend_html <- HTML(sprintf("
+  <div style='
+    background: white;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+  '>
+    <img src='%s' style='max-width:180px; height:auto; display:block;'>
+  </div>
+", legend_url))
+
+map <- map %>%
+  addControl(legend_html, position = "bottomright")
 map <- map %>%
   hideGroup(c("2025-2054"))  # Ensure this group is hidden initially
 
