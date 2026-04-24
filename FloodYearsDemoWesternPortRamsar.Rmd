@@ -41,6 +41,9 @@ require(htmltools)
 ```{r, include=FALSE}
 voi = vect("Ramsar/") #inundation tiles
 voi = voi[voi$RAMSAR_NAM == "Western Port",]
+
+saltmarsh <- vect("westernport_saltmarsh/westernport_saltmarsh.gpkg")
+
 ```
 
 ```{r read in the tiles, include=FALSE}
@@ -61,6 +64,7 @@ group_name  = sapply(strsplit(xs,"_"),function(x) x[5])
 
 
 dat <- data.frame(voi_id = voi_id, lat = ll[2,],lon = ll[1,],Name = voi_id)
+#dat2 <- data.frame(voi_id = voi_id, lat = ll[2,],lon = ll[1,],Name = voi_id)
 ```
 
 
@@ -83,6 +87,16 @@ map <- leaflet(dat) %>%
               fillOpacity = 0.1, 
               weight = 2,
               group = "Western Port Ramsar")
+
+map <- map  %>%
+  addTiles(group = "OpenStreetMap") %>%
+  addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") %>%
+  addPolygons(data = saltmarsh, 
+              color = "yellow", 
+              fillColor = "wheat", 
+              fillOpacity = 0.1, 
+              weight = 2,
+              group = "Statewide Saltmarsh")
 
 map <- map %>% 
   addWMSTiles(
@@ -127,8 +141,8 @@ map <- map %>%
 map <- map %>%
   addLayersControl(
     baseGroups = c("Satellite","OpenStreetMap"),
-    overlayGroups =  c("DEA CoastalEcosystems","1995-2024","2025-2054","Western Port Ramsar"),
-    options = layersControlOptions(collapsed = FALSE, mutuallyExclusiveGroups = c("1995-2024","2025-2054"))
+    overlayGroups =  c("DEA CoastalEcosystems","1996-2025","2026-2055","Western Port Ramsar","Statewide Saltmarsh"),
+    options = layersControlOptions(collapsed = FALSE, mutuallyExclusiveGroups = c("1996-2025","2026-2055"))
   )
 
 # Display the map
@@ -150,7 +164,7 @@ legend_html <- HTML(sprintf("
 map <- map %>%
   addControl(legend_html, position = "bottomright")
 map <- map %>%
-  hideGroup(c("2025-2054"))  # Ensure this group is hidden initially
+  hideGroup(c("2026-2055"))  # Ensure this group is hidden initially
 
 ```
 
