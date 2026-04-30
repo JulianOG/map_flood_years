@@ -72,8 +72,14 @@ dat <- data.frame(voi_id = voi_id, lat = ll[2,],lon = ll[1,],Name = voi_id)
 
 
 # Define a color palette for the raster
-pal <- colorBin((c("magenta", "darkblue", "cyan", "lightblue")), 
-                    values(rl[[1]]), na.color = "transparent",bins = 6)
+#pal <- colorBin((c("magenta", "darkblue", "cyan", "lightblue")), 
+#                    values(rl[[1]]), na.color = "transparent",bins = 6)
+
+colz = colorRampPalette(rev(c("cyan","darkblue","magenta")))
+
+# Define a color palette for the raster
+pal <- colorBin((c(colz(6),"#ADD8E6")), 
+                    0:35, na.color = "transparent",bins = 7)
 
 #previewColors(pal)
 
@@ -82,8 +88,8 @@ map <- leaflet(dat) %>%
   addTiles(group = "OpenStreetMap") %>%
   addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") %>%
   addPolygons(data = voi, 
-              color = "blue", 
-              fillColor = "lightblue", 
+              color = "orange", 
+              fillColor = "pink", 
               fillOpacity = 0.1, 
               weight = 2,
               group = "Western Port Ramsar")
@@ -94,7 +100,7 @@ map <- map  %>%
   addPolygons(data = saltmarsh, 
               color = "yellow", 
               fillColor = "wheat", 
-              fillOpacity = 0.1, 
+              fillOpacity = 0.2, 
               weight = 2,
               group = "Statewide Saltmarsh")
 
@@ -164,7 +170,7 @@ legend_html <- HTML(sprintf("
 map <- map %>%
   addControl(legend_html, position = "bottomright")
 map <- map %>%
-  hideGroup(c("2026-2055"))  # Ensure this group is hidden initially
+  hideGroup(c("DEA CoastalEcosystems","2026-2055"))  # Ensure this group is hidden initially
 
 ```
 
