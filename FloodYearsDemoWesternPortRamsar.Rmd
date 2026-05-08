@@ -43,7 +43,7 @@ voi = vect("Ramsar/") #inundation tiles
 voi = voi[voi$RAMSAR_NAM == "Western Port",]
 
 saltmarsh <- vect("westernport_saltmarsh/westernport_saltmarsh.gpkg")
-
+theinlets <- vect("the_inlets/the_inlets.shp")
 ```
 
 ```{r read in the tiles, include=FALSE}
@@ -95,14 +95,21 @@ map <- leaflet(dat) %>%
               group = "Western Port Ramsar")
 
 map <- map  %>%
-  addTiles(group = "OpenStreetMap") %>%
-  addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") %>%
   addPolygons(data = saltmarsh, 
               color = "yellow", 
               fillColor = "wheat", 
               fillOpacity = 0.2, 
               weight = 2,
               group = "Statewide Saltmarsh")
+
+
+map <- map  %>%
+  addPolygons(data = theinlets, 
+              color = "green", 
+              fillColor = "lightgreen", 
+              fillOpacity = 0.2, 
+              weight = 2,
+              group = "The Inlets")
 
 map <- map %>% 
   addWMSTiles(
@@ -147,7 +154,7 @@ map <- map %>%
 map <- map %>%
   addLayersControl(
     baseGroups = c("Satellite","OpenStreetMap"),
-    overlayGroups =  c("DEA CoastalEcosystems","1996-2025","2026-2055","Western Port Ramsar","Statewide Saltmarsh"),
+    overlayGroups =  c("DEA CoastalEcosystems","1996-2025","2026-2055","Western Port Ramsar","Statewide Saltmarsh","The Inlets"),
     options = layersControlOptions(collapsed = FALSE, mutuallyExclusiveGroups = c("1996-2025","2026-2055"))
   )
 
