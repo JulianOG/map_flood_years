@@ -197,7 +197,7 @@ legend_html <- HTML(sprintf("
 map <- map %>%
   addControl(legend_html, position = "bottomright")
 map <- map %>%
-  hideGroup(c("DEA CoastalEcosystems","2026-2055"))  # Ensure this group is hidden initially
+  hideGroup(c("DEA CoastalEcosystems","2026-2055","Roosting sites"))  # Ensure this group is hidden initially
 
 ```
 
