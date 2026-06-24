@@ -18,7 +18,7 @@ Rare storm tide events are traditionally defined as 100-year events with a 1% an
 
 Defining the threshold for chronic coastal inundation (e.g., 30 days per year or 3 events over 30 years) depends on the ability of affected systems, whether natural or community-built, to adapt to these impacts.  
 
-The map below examines storm tide flooding over two 30-year periods: the past 30 years before 2025 (1995–2024) and the next 30 years from 2025 (2025–2054). By comparing the two periods and seeing how the colours on the maps change, it highlights the potential increase in significant storm tide events due to sea-level rise, helping to identify locations where chronic coastal inundation issues may emerge and require adaptation planning.
+The map below examines storm tide flooding over two 30-year periods: the past 30 years before 2026 (1996–2025) and the next 30 years from 2026 (2026–2055). By comparing the two periods and seeing how the colours on the maps change, it highlights the potential increase in significant storm tide events due to sea-level rise, helping to identify locations where chronic coastal inundation issues may emerge and require adaptation planning.
 
 ### How to interpret information on the map
 
