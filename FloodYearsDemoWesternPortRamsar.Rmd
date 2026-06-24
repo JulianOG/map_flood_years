@@ -42,6 +42,8 @@ require(htmltools)
 voi = vect("Ramsar/") #inundation tiles
 voi = voi[voi$RAMSAR_NAM == "Western Port",]
 
+roosting <- vect("HansenEtAl2011/HansenEtAl2011.shp")
+
 saltmarsh <- vect("westernport_saltmarsh/westernport_saltmarsh.gpkg")
 theinlets <- vect("the_inlets/the_inlets.shp")
 ```
@@ -111,6 +113,15 @@ map <- map  %>%
               weight = 2,
               group = "The Inlets")
 
+map <- map  %>%
+  addPolygons(data = roosting, 
+              color = "red", 
+              fillColor = "red", 
+              fillOpacity = 0.2, 
+              weight = 2,
+              group = "Roosting sites")
+
+
 map <- map %>% 
   addWMSTiles(
     baseUrl = "https://ows.dea.ga.gov.au/",
@@ -150,11 +161,20 @@ map <- map %>%
   addLegend(pal = pal, values = values(rl[[1]]), 
             title = HTML("Number of<br>storm tide<br>exceedence years"),opacity =1)
 
+map <- map %>%
+  addLegend(
+    position = "bottomleft",
+    colors = c("orange", "yellow", "green", "red"),
+    labels = c("Western Port Ramsar", "Statewide Saltmarsh", "The Inlets", "Roosting sites"),
+    title = "Overlay polygons",
+    opacity = 1
+  )
+
 # Add layers control to switch between basemaps
 map <- map %>%
   addLayersControl(
     baseGroups = c("Satellite","OpenStreetMap"),
-    overlayGroups =  c("DEA CoastalEcosystems","1996-2025","2026-2055","Western Port Ramsar","Statewide Saltmarsh","The Inlets"),
+    overlayGroups =  c("DEA CoastalEcosystems","1996-2025","2026-2055","Western Port Ramsar","Statewide Saltmarsh","The Inlets","Roosting sites"),
     options = layersControlOptions(collapsed = FALSE, mutuallyExclusiveGroups = c("1996-2025","2026-2055"))
   )
 
