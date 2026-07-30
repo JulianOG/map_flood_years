@@ -232,7 +232,7 @@ legend_html <- HTML(sprintf("
 ", legend_url))
 
 map <- map %>%
-  addControl(legend_html, position = "bottomright")
+  addControl(legend_html, position = "bottomleft")
 map <- map %>%
   hideGroup(c("DEA CoastalEcosystems","2026-2055","Roosting sites","Landsat7 NIR trend","Landsat7 Green trend","Landsat7 cor max SWL"))  # Ensure this group is hidden initially
 
