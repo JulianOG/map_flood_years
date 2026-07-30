@@ -66,6 +66,25 @@ group_name  = sapply(strsplit(xs,"_"),function(x) x[5])
 
 
 dat <- data.frame(voi_id = voi_id, lat = ll[2,],lon = ll[1,],Name = voi_id)
+```
+
+```{r read landsat, include=FALSE}
+landsat <- rast("landsat7/nir_trend_cor_stats.tif")
+thr = 50
+nir_trend <- landsat$trend
+nir_trend[nir_trend > thr] = thr
+nir_trend[nir_trend < -thr] = -thr
+
+nir_cor_maxSWL <- landsat$cor_maxSWL*100
+nir_cor_maxSWL[nir_cor_maxSWL > thr] = thr
+nir_cor_maxSWL[nir_cor_maxSWL < -thr] = -thr
+
+landsat <- rast("landsat7/green_trend_cor_stats.tif")
+green_trend <- landsat$trend
+green_trend[green_trend > thr] = thr
+green_trend[green_trend < -thr] = -thr
+
+
 #dat2 <- data.frame(voi_id = voi_id, lat = ll[2,],lon = ll[1,],Name = voi_id)
 ```
 
@@ -78,10 +97,15 @@ dat <- data.frame(voi_id = voi_id, lat = ll[2,],lon = ll[1,],Name = voi_id)
 #                    values(rl[[1]]), na.color = "transparent",bins = 6)
 
 colz = colorRampPalette(rev(c("cyan","darkblue","magenta")))
+bwwr = colorRampPalette(c("#000078","blue","white","white","red","#7B003D"))
+bwr = colorRampPalette(c("#000078","blue","white","red","#7B003D"))
 
 # Define a color palette for the raster
 pal <- colorBin((c(colz(6),"#ADD8E6")), 
                     0:35, na.color = "transparent",bins = 7)
+
+pal2 <- colorBin(bwr(10), 
+                    -thr:thr, na.color = "transparent",bins = 10)
 
 #previewColors(pal)
 
@@ -135,6 +159,15 @@ map <- map %>%
     group = "DEA CoastalEcosystems"
   )
 
+map <- map %>%
+  addRasterImage(nir_trend,colors = pal2, opacity = 1,group = "Landsat7 NIR trend")
+
+map <- map %>%
+  addRasterImage(green_trend,colors = pal2, opacity = 1,group = "Landsat7 Green trend")
+
+map <- map %>%
+  addRasterImage(nir_cor_maxSWL,colors = pal2, opacity = 1,group = "Landsat7 cor max SWL")
+
 
 # Add all raster images with a loop
 map <- reduce(seq_along(rl), function(m, i) {
@@ -162,6 +195,10 @@ map <- map %>%
             title = HTML("Number of<br>storm tide<br>exceedence years"),opacity =1)
 
 map <- map %>%
+  addLegend(pal = pal2,values = values(nir_trend),
+            title = HTML("Landsat7 red-blue<br>Direction"),opacity =1,position = "bottomleft")
+
+map <- map %>%
   addLegend(
     position = "bottomleft",
     colors = c("orange", "yellow", "green", "red"),
@@ -174,7 +211,7 @@ map <- map %>%
 map <- map %>%
   addLayersControl(
     baseGroups = c("Satellite","OpenStreetMap"),
-    overlayGroups =  c("DEA CoastalEcosystems","1996-2025","2026-2055","Western Port Ramsar","Statewide Saltmarsh","The Inlets","Roosting sites"),
+    overlayGroups =  c("DEA CoastalEcosystems","1996-2025","2026-2055","Western Port Ramsar","Statewide Saltmarsh","The Inlets","Roosting sites","Landsat7 NIR trend","Landsat7 Green trend","Landsat7 cor max SWL"),
     options = layersControlOptions(collapsed = FALSE, mutuallyExclusiveGroups = c("1996-2025","2026-2055"))
   )
 
@@ -197,7 +234,7 @@ legend_html <- HTML(sprintf("
 map <- map %>%
   addControl(legend_html, position = "bottomright")
 map <- map %>%
-  hideGroup(c("DEA CoastalEcosystems","2026-2055","Roosting sites"))  # Ensure this group is hidden initially
+  hideGroup(c("DEA CoastalEcosystems","2026-2055","Roosting sites","Landsat7 NIR trend","Landsat7 Green trend","Landsat7 cor max SWL"))  # Ensure this group is hidden initially
 
 ```
 
