@@ -24,6 +24,7 @@ The map below examines storm tide flooding over two 30-year periods: the past 30
 
 Zoom in and out to focus on specific areas around Western Port. Use the layers control to select timeframes or switch basemaps view (OpenStreetMap or Satellite). The legend explains the color-coded number of flood years for the 30 year periods, ranging from frequent (light blue) to less frequent (magenta). A flood year is any year in which storm tide water levels rise above the land surface, making flooding likely. For example, land under the magenta colour experiance between 0 and 5 flood years over the 30 year period. Click on green circle markers to view detailed historic flood-year plots for each location.  
 
+
 ```{r setup, include=FALSE, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(fig.width=10, fig.height=7)
@@ -69,20 +70,30 @@ dat <- data.frame(voi_id = voi_id, lat = ll[2,],lon = ll[1,],Name = voi_id)
 ```
 
 ```{r read landsat, include=FALSE}
-landsat <- rast("landsat7/nir_trend_cor_stats.tif")
-thr = 50
-nir_trend <- landsat$trend
-nir_trend[nir_trend > thr] = thr
-nir_trend[nir_trend < -thr] = -thr
+#landsat <- rast("landsat7/ndwi_trend_cor_stats.tif")
+#thr = 50
+#ndwi_trend <- landsat$trend
+#ndwi_trend[ndwi_trend > thr] = thr
+#ndwi_trend[ndwi_trend < -thr] = -thr
 
-nir_cor_maxSWL <- landsat$cor_maxSWL*100
-nir_cor_maxSWL[nir_cor_maxSWL > thr] = thr
-nir_cor_maxSWL[nir_cor_maxSWL < -thr] = -thr
+#ndwi_cor_maxSWL <- landsat$cor_maxSWL*100
+#ndwi_cor_maxSWL[ndwi_cor_maxSWL > thr] = thr
+#ndwi_cor_maxSWL[ndwi_cor_maxSWL < -thr] = -thr
 
-landsat <- rast("landsat7/green_trend_cor_stats.tif")
-green_trend <- landsat$trend
-green_trend[green_trend > thr] = thr
-green_trend[green_trend < -thr] = -thr
+#landsat <- rast("landsat7/green_trend_cor_stats.tif")
+#green_trend <- landsat$trend
+#green_trend[green_trend > thr] = thr
+#green_trend[green_trend < -thr] = -thr
+
+landsat <- rast("landsat7/ndwi_trend_cor_stats.tif")
+thr = 0.5
+ndwi_trend <- landsat$trend*10
+ndwi_trend[ndwi_trend > thr] = thr
+ndwi_trend[ndwi_trend < -thr] = -thr
+
+ndwi_cor_maxSWL <- landsat$cor_maxSWL
+ndwi_cor_maxSWL[ndwi_cor_maxSWL > thr] = thr
+ndwi_cor_maxSWL[ndwi_cor_maxSWL < -thr] = -thr
 
 
 #dat2 <- data.frame(voi_id = voi_id, lat = ll[2,],lon = ll[1,],Name = voi_id)
@@ -104,7 +115,7 @@ bwr = colorRampPalette(c("#000078","blue","white","red","#7B003D"))
 pal <- colorBin((c(colz(6),"#ADD8E6")), 
                     0:35, na.color = "transparent",bins = 7)
 
-pal2 <- colorBin(bwr(10), 
+pal2 <- colorBin(rev(bwr(10)), 
                     -thr:thr, na.color = "transparent",bins = 10)
 
 #previewColors(pal)
@@ -160,13 +171,10 @@ map <- map %>%
   )
 
 map <- map %>%
-  addRasterImage(nir_trend,colors = pal2, opacity = 1,group = "Landsat7 NIR trend")
+  addRasterImage(ndwi_trend,colors = pal2, opacity = 1,group = "Landsat7 NDWI trend")
 
 map <- map %>%
-  addRasterImage(green_trend,colors = pal2, opacity = 1,group = "Landsat7 Green trend")
-
-map <- map %>%
-  addRasterImage(nir_cor_maxSWL,colors = pal2, opacity = 1,group = "Landsat7 cor max SWL")
+  addRasterImage(ndwi_cor_maxSWL,colors = pal2, opacity = 1,group = "Landsat7 NDWI cor max SWL")
 
 
 # Add all raster images with a loop
@@ -195,7 +203,7 @@ map <- map %>%
             title = HTML("Number of<br>storm tide<br>exceedence years"),opacity =1)
 
 map <- map %>%
-  addLegend(pal = pal2,values = values(nir_trend),
+  addLegend(pal = pal2,values = values(ndwi_trend),
             title = HTML("Landsat7 red-blue<br>Direction"),opacity =1,position = "bottomleft")
 
 map <- map %>%
@@ -211,7 +219,7 @@ map <- map %>%
 map <- map %>%
   addLayersControl(
     baseGroups = c("Satellite","OpenStreetMap"),
-    overlayGroups =  c("DEA CoastalEcosystems","1996-2025","2026-2055","Western Port Ramsar","Statewide Saltmarsh","The Inlets","Roosting sites","Landsat7 NIR trend","Landsat7 Green trend","Landsat7 cor max SWL"),
+    overlayGroups =  c("DEA CoastalEcosystems","1996-2025","2026-2055","Western Port Ramsar","Statewide Saltmarsh","The Inlets","Roosting sites","Landsat7 NDWI trend","Landsat7 NDWI cor max SWL"),
     options = layersControlOptions(collapsed = FALSE, mutuallyExclusiveGroups = c("1996-2025","2026-2055"))
   )
 
@@ -234,7 +242,7 @@ legend_html <- HTML(sprintf("
 map <- map %>%
   addControl(legend_html, position = "bottomleft")
 map <- map %>%
-  hideGroup(c("DEA CoastalEcosystems","2026-2055","Roosting sites","Landsat7 NIR trend","Landsat7 Green trend","Landsat7 cor max SWL"))  # Ensure this group is hidden initially
+  hideGroup(c("DEA CoastalEcosystems","2026-2055","Roosting sites","Landsat7 NDWI trend","Landsat7 NDWI cor max SWL"))  # Ensure this group is hidden initially
 
 ```
 
@@ -246,8 +254,25 @@ map
 ```
 
 
-**DISCLAIMER: This work has very limited validation/calibration and shouldn't be used for planning, policy, or navigation. Water levels and digital elevations vertical datumns were aligned by tuning water levels to the number of historic flooding years (1981-2020) for only a few known hotspot locations. As flood history isn't widely accessible, further work is required to obtain local knowledge of historical flooding for each of location with elevation data.**
+### Additional Landsat 7 exploratory change indicators — feedback welcome
 
+Landsat 7 collected visible and infrared images of the Earth from 1999 until its science mission ended in 2024. Annual green and near-infrared (NIR) reflectance layers were obtained from the Digital Earth Australia Landsat 7 geometric-median product for 1999–2021. These 30 m resolution composites represent typical conditions during each calendar year while reducing the influence of clouds and other anomalous observations.
+
+The green and NIR bands were combined to calculate the Normalised Difference Water Index:
+
+\[
+\mathrm{NDWI} =
+\frac{\mathrm{Green}-\mathrm{NIR}}
+{\mathrm{Green}+\mathrm{NIR}}
+\]
+
+Higher NDWI values generally indicate greater water influence, whereas lower values indicate relatively stronger NIR reflectance and a less water-like spectral response. In coastal environments, however, NDWI can also be affected by vegetation, exposed sediment, water depth, turbidity and tidal conditions. The following layers are therefore presented as exploratory indicators. They can be selected using the controls on the right, with the colour scale shown at the lower left.
+
+**Landsat 7 NDWI trend layer —** Blue areas show increasing NDWI between 1999 and 2021 and are consistent with increasing water influence through time. Red areas show decreasing NDWI, indicating a shift towards relatively stronger NIR reflectance. Many of these red areas coincide with intertidal seagrass mapped in the DEA Coastal Ecosystems dataset. This pattern may reflect reduced water influence, greater exposure of the seabed, vegetation change, or changes in sediment and water clarity. These processes cannot be distinguished using NDWI alone. Trend values have been multiplied by 10 for display on the map colour scale.
+
+**Landsat 7 detrended NDWI correlation with annual maximum water level —** This layer compares year-to-year variations in NDWI with annual maximum water levels recorded at Stony Point, after removing the long-term trend from both time series. Blue areas show positive correlations, meaning that NDWI tended to be higher than its long-term trend in years when the annual maximum water level was also higher than its trend. Many of these blue areas coincide with saltmarsh terraces and may be consistent with greater water influence during higher-water years via flooding or water table effects. Red areas show negative correlations, meaning that NDWI tended to be lower in those years. Many red areas occur in more regularly inundated environments, where the signal may instead reflect changes in water clarity, suspended sediment or other water-column properties. These correlations represent statistical associations and do not, by themselves, demonstrate that higher water levels caused the observed spectral changes. Regular striping visible over some open-water areas is likely associated with uneven Landsat 7 observation availability following the satellite’s scan-line corrector failure. These areas should be treated as potential data artefacts rather than interpreted as environmental change.
+
+**Disclaimer:** This work has received limited validation and calibration and should not be used for planning, policy or navigation. Water levels and digital elevations were aligned by adjusting the water levels to reproduce the number of historical flooding years between 1981 and 2020 at a small number of known flood-hotspot locations. Because historical flood information is not widely available, further work is required to incorporate local knowledge and validate the results at each location where elevation data are available.
 
 
 
