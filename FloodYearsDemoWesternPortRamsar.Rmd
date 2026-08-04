@@ -35,6 +35,7 @@ knitr::opts_chunk$set(fig.width=10, fig.height=7)
 #https://julianog.github.io/map_flood_years/FloodYearsDemo.html
 require(terra)
 require(leaflet)
+require(leaflet.extras)
 require(purrr)
 require(htmltools)
 ```
@@ -205,6 +206,17 @@ map <- map %>%
 map <- map %>%
   addLegend(pal = pal2,values = values(ndwi_trend),
             title = HTML("Landsat7 red-blue<br>Direction"),opacity =1,position = "bottomleft")
+
+map <- map %>%
+  leaflet.extras::addControlGPS(
+    options = gpsOptions(
+      position   = "topleft",
+      activate   = FALSE,
+      autoCenter = FALSE,
+      maxZoom    = 17,
+      setView    = TRUE
+    )
+  )
 
 map <- map %>%
   addLegend(
