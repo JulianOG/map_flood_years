@@ -54,7 +54,7 @@ theinlets <- vect("the_inlets/the_inlets.shp")
 ```{r landuse,include = FALSE}
 
 vluis = vect("vluis2122.gpkg")
-vluis = crop(vluis,ext(buffer(voi,500)))
+vluis = crop(vluis,buffer(voi,5000))
 
 # Land-use categories
 land_use_categories <- sort(unique(na.omit(vluis$LU_CATEGOR)))
@@ -161,10 +161,9 @@ map <- map  %>%
               fillOpacity = 0.1, 
               weight = 2,
               label = ~LU_CATEGOR,
-              popup       = ~paste0(
-             "<strong>Land-use category:</strong><br>",
-             htmltools::htmlEscape(LU_CATEGOR)
-    ),
+              #popup       = ~paste0(
+             #"<strong>Land-use category:</strong><br>",
+             #htmltools::htmlEscape(LU_CATEGOR)),
 
               group = "Victorian Land Use 2021/22")
 
