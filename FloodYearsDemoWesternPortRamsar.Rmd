@@ -50,6 +50,27 @@ saltmarsh <- vect("westernport_saltmarsh/westernport_saltmarsh.gpkg")
 theinlets <- vect("the_inlets/the_inlets.shp")
 ```
 
+
+```{r landuse,include = FALSE}
+
+vluis = vect("vluis2122.gpkg")
+vluis = crop(vluis,ext(buffer(voi,500)))
+
+# Land-use categories
+land_use_categories <- sort(unique(na.omit(vluis$LU_CATEGOR)))
+
+# Generate one colour per category
+land_use_pal <- colorFactor(
+  palette = hcl.colors(
+    n = length(land_use_categories),
+    palette = "Dynamic"
+  ),
+  domain   = land_use_categories,
+  na.color = "transparent"
+)
+
+```
+
 ```{r read in the tiles, include=FALSE}
 xs = list.files("FloodYears_tiles/WP_ramsar/",full.names = TRUE)
 
@@ -116,7 +137,7 @@ bwr = colorRampPalette(c("#000078","blue","white","red","#7B003D"))
 pal <- colorBin((c(colz(6),"#ADD8E6")), 
                     0:35, na.color = "transparent",bins = 7)
 
-pal2 <- colorBin(rev(bwr(10)), 
+pal2 <- colorBin(rev(bwwr(10)), 
                     -thr:thr, na.color = "transparent",bins = 10)
 
 #previewColors(pal)
@@ -131,6 +152,21 @@ map <- leaflet(dat) %>%
               fillOpacity = 0.1, 
               weight = 2,
               group = "Western Port Ramsar")
+
+
+map <- map  %>%
+  addPolygons(data = vluis, 
+              color = ~land_use_pal(LU_CATEGOR), 
+              fillColor = ~land_use_pal(LU_CATEGOR), 
+              fillOpacity = 0.1, 
+              weight = 2,
+              label = ~LU_CATEGOR,
+              popup       = ~paste0(
+             "<strong>Land-use category:</strong><br>",
+             htmltools::htmlEscape(LU_CATEGOR)
+    ),
+
+              group = "Victorian Land Use 2021/22")
 
 map <- map  %>%
   addPolygons(data = saltmarsh, 
@@ -231,7 +267,7 @@ map <- map %>%
 map <- map %>%
   addLayersControl(
     baseGroups = c("Satellite","OpenStreetMap"),
-    overlayGroups =  c("DEA CoastalEcosystems","1996-2025","2026-2055","Western Port Ramsar","Statewide Saltmarsh","The Inlets","Roosting sites","Landsat7 NDWI trend","Landsat7 NDWI cor max SWL"),
+    overlayGroups =  c("DEA CoastalEcosystems","Victorian Land Use 2021/22","1996-2025","2026-2055","Western Port Ramsar","Statewide Saltmarsh","The Inlets","Roosting sites","Landsat7 NDWI trend","Landsat7 NDWI cor max SWL"),
     options = layersControlOptions(collapsed = FALSE, mutuallyExclusiveGroups = c("1996-2025","2026-2055"))
   )
 
@@ -254,7 +290,7 @@ legend_html <- HTML(sprintf("
 map <- map %>%
   addControl(legend_html, position = "bottomleft")
 map <- map %>%
-  hideGroup(c("DEA CoastalEcosystems","2026-2055","Roosting sites","Landsat7 NDWI trend","Landsat7 NDWI cor max SWL"))  # Ensure this group is hidden initially
+  hideGroup(c("DEA CoastalEcosystems","Victorian Land Use 2021/22","2026-2055","Roosting sites","Landsat7 NDWI trend","Landsat7 NDWI cor max SWL"))  # Ensure this group is hidden initially
 
 ```
 
